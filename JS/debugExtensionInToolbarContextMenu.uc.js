@@ -86,6 +86,11 @@ class DebugExtension {
     },
   };
   actionTypes = ["BrowserAction", "PageAction", "SidebarAction", "Options"];
+  
+  // html#main-window body popupset#mainPopupSet panel#unified-extensions-panel.panel-no-padding panelmultiview box.panel-viewcontainer box.panel-viewstack panelview#unified-extensions-view.cui-widget-panelview vbox.panel-subview-body vbox#unified-extensions-area.customization-target
+  
+  // html#main-window body popupset#mainPopupSet menupopup#unified-extensions-context-menu
+  
   constructor() {
     this.setupUpdate();
     this.toolbarContext = document.getElementById("toolbar-context-menu");
@@ -93,21 +98,33 @@ class DebugExtension {
       "customizationPanelItemContextMenu"
     );
     this.pageActionContext = document.getElementById("pageActionContextMenu");
+    this.unifiedExtensionsContext = document.getElementById("unified-extensions-context-menu");
+    
     this.toolbarMenu = this.makeMainMenu(this.toolbarContext);
     this.toolbarMenupopup = this.toolbarMenu.appendChild(
       document.createXULElement("menupopup")
     );
     this.toolbarMenupopup.addEventListener("popupshowing", this);
+    
     this.overflowMenu = this.makeMainMenu(this.overflowContext);
     this.overflowMenupopup = this.overflowMenu.appendChild(
       document.createXULElement("menupopup")
     );
     this.overflowMenupopup.addEventListener("popupshowing", this);
+    
     this.pageActionMenu = this.makeMainMenu(this.pageActionContext);
     this.pageActionMenupopup = this.pageActionMenu.appendChild(
       document.createXULElement("menupopup")
     );
     this.pageActionMenupopup.addEventListener("popupshowing", this);
+    
+    this.unifiedExtensionsMenu = this.makeMainMenu(this.unifiedExtensionsContext);
+    this.unifiedExtensionsMenupopup = this.unifiedExtensionsMenu.appendChild(
+      document.createXULElement("menupopup")
+    );
+    this.unifiedExtensionsMenupopup.addEventListener("popupshowing", this);
+    
+    
     // make a menu item for each type of page within each context
     [
       "Manifest",
@@ -170,12 +187,13 @@ class DebugExtension {
       accesskey: this.config.menuAccessKey,
       contexttype: popup === this.pageActionContext ? void 0 : "toolbaritem",
     });
-    popup
-      .querySelector(
-        popup === this.pageActionContext
-          ? ".manageExtensionItem"
-          : ".customize-context-manageExtension"
-      )
+    popup.querySelector( ( () => {
+      switch (popup) {
+        case this.pageActionContext: return ".manageExtensionItem";
+        case this.unifiedExtensionsContext: return ".unified-extensions-context-menu-manage-extension";
+        default: return ".customize-context-manageExtension";
+      }
+    } ) () )
       .after(menu);
     return menu;
   }
